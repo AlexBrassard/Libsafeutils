@@ -1,0 +1,32 @@
+/*
+ *
+ * Libsafeutils  -  A small library of useful inlined utilities.
+ *
+ */
+
+
+These are a few functions I kept using and reusing and though
+it would be a real good fit for a header only library.
+In all cases, all destinations must be preallocated.
+No memory is allocated internally for the return values.
+
+Here are their prototypes:
+
+
+
+Copy at most dest_s-1 bytes from src to dest, clearing the
+destination buffer with zeros before the copy operation.
+    char*    s_strcpy(char *dest, char *src, size_t dest_s);
+
+
+Convert the double integer source into a dest string of at most dest_s-1 bytes.
+    char*    s_ftoa(char *dest, double src, size_t dest_s);
+
+
+Convert the integer source into a dest string of at most dest_s-1 bytes.
+    char*    s_itoa(char *dest, int src, size_t dest_s);
+
+
+Split the given string into word_delim delimited words.
+Each words are at most words_s-1 bytes long and dest must be able
+to hold at least dest_s words.

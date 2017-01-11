@@ -1,0 +1,17 @@
+/*
+
+  LibSafe-Utils string operations header file.
+
+*/
+
+
+/* Prototypes */
+void *SU_memcpy(char *dest, 
+		char *src, 
+		size_t n);
+
+void *SU_strcpy(char *_dest,        
+		char *_element,
+		char *_source,
+		size_t _dest_size);
+		
