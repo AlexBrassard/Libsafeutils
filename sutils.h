@@ -63,7 +63,7 @@ static inline char* s_strcpy(char *dest, char *src, size_t dest_s)
  * The only way to see if s_strcmp had an error is to verify errno 
  * after each calls.
  */
-int s_strcmp(const char *s1, const char *s2, size_t num, int flags)
+static inline int s_strcmp(const char *s1, const char *s2, size_t num, int flags)
 {
   size_t len1 = 0, len2 = 0;
   errno = 0;
