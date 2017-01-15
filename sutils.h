@@ -11,9 +11,22 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <ctype.h>
 # include <errno.h>
 
+# define LS_ICASE 1
+
 /*** Code ***/
+
+
+
+/*
+ * At least s_strcpy and s_strcmp are still vulnerable to
+ * being fed one or more non-NULL terminated strings.
+ * This must be fixed ASAP.
+ */
+
+
 
 /*
  * Copy at most dest_s-1 char from src to dest,
@@ -40,42 +53,55 @@ static inline char* s_strcpy(char *dest, char *src, size_t dest_s)
 } /* s_strcpy() */
 
 
-/* Convert the double integer src into a dest_s-1 precision string dest. */
-static inline char* s_ftoa(char *dest, double src, size_t dest_s)
+/* 
+ * Compares the first num bytes of s1 and s2 returning
+ * an integer less than, equal to or bigger than 0 if 
+ * s1 is found to be smaller than, equal of or bigger than s2.
+ * Flags are optional parameters to pass to s_strcmp, right now only
+ * LS_ICASE is available. when this flags is on the comparaisons are
+ * case insensitives.
+ * The only way to see if s_strcmp had an error is to verify errno 
+ * after each calls.
+ */
+int s_strcmp(const char *s1, const char *s2, size_t num, int flags)
 {
-  if (!dest || dest_s < 2) {
+  size_t len1 = 0, len2 = 0;
+  errno = 0;
+  if (!s1 || !s2 || num == 0) {
     errno = EINVAL;
-    return NULL;
+    return 0;
   }
-  memset(dest, '\0', dest_s);
-  if (snprintf(dest, dest_s-1, "%f", src) < 0) {
-    fprintf(stderr, "%s: Failed to print the given number to the given buffer\n\n", __func__);
-    return NULL;
+  /* 
+   * Make sure both string lenghts are bigger than or equal to num.
+   * If any strings are smaller than num, modify num so that it's 
+   * equal to the lenght of the smaller string.
+   */
+  if (num > (len1 = strlen(s1)) || num > (len2 = strlen(s2))){
+    if (len1 < len2) num = len1;
+    else num = len2;
   }
-  dest[strlen(dest)] = '\0';
-
-  return dest;
-
-} /* s_ftoa() */
-
-
-/* Converts the integer src into a dest_s-1 digits string dest. */
-static inline char* s_itoa(char *dest, int src, size_t dest_s)
-{
-  if (!dest || dest_s < 2) {
-    errno = EINVAL;
-    return NULL;
+  
+  if (flags & LS_ICASE){
+    while(num-- != 0 && tolower(*s1) == tolower(*s2)){
+      if (num == 0 || *s1 == '\0' || *s2 == '\0') break;
+      s1++;
+      s2++;
+    }
+    
+    return (tolower(*s1) - tolower(*s2));
   }
-  memset(dest, '\0', dest_s);
-  if (snprintf(dest, dest_s-1, "%d", src) < 0) {
-    fprintf(stderr, "%s: Failed to print the given number to the given buffer\n\n", __func__);
-    return NULL;
+
+  /* Default, no flags. */
+  while (num-- != 0 && *s1 == *s2){
+    if (num == 0 || *s1 == '\0' || *s2 == '\0') break;
+    s1++;
+    s2++;
   }
-  dest[strlen(dest)] = '\0';
+  return (*s1 - *s2);
 
-  return dest;
 
-} /* s_itoa() */
+} /* s_strcmp() */
+
 
 /* 
  * Split src into dest[words] of at most word_s-1 characters each,
@@ -144,6 +170,45 @@ static inline char** s_split(char **dest, const char* src, size_t dest_s,
 
   return dest;
 }
+
+
+/* Convert the double integer src into a dest_s-1 precision string dest. */
+static inline char* s_ftoa(char *dest, double src, size_t dest_s)
+{
+  if (!dest || dest_s < 2) {
+    errno = EINVAL;
+    return NULL;
+  }
+  memset(dest, '\0', dest_s);
+  if (snprintf(dest, dest_s-1, "%f", src) < 0) {
+    fprintf(stderr, "%s: Failed to print the given number to the given buffer\n\n", __func__);
+    return NULL;
+  }
+  dest[strlen(dest)] = '\0';
+
+  return dest;
+
+} /* s_ftoa() */
+
+
+/* Converts the integer src into a dest_s-1 digits string dest. */
+static inline char* s_itoa(char *dest, int src, size_t dest_s)
+{
+  if (!dest || dest_s < 2) {
+    errno = EINVAL;
+    return NULL;
+  }
+  memset(dest, '\0', dest_s);
+  if (snprintf(dest, dest_s-1, "%d", src) < 0) {
+    fprintf(stderr, "%s: Failed to print the given number to the given buffer\n\n", __func__);
+    return NULL;
+  }
+  dest[strlen(dest)] = '\0';
+
+  return dest;
+
+} /* s_itoa() */
+
 	       
 
 #endif /* LIB_SAFE_UTILS_HEADER_FILE */
