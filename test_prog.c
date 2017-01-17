@@ -5,16 +5,34 @@
 
 int main(int argc, char **argv)
 {
-  size_t maxlen = 256;
+  char **dest = NULL;
+  int i = 0;
+  
 
-  if (argc < 4) {
-    fprintf(stderr, "%s [s1] [s2] [flags] compare string s1 against string s2 (maximum 256 bytes long per strings.)\n \
-flags can be 0, LS_ICASE or LS_USCORE.\n\n",
+
+  if (argc < 2){
+    fprintf(stderr, "%s [string]  -  Split a string into at most 255 words of at most 255 characters each, 1 per line.\n\n",
 	    argv[0]);
     return -1;
   }
 
-  printf("Returned: %d\n\n", s_strcmp(argv[1], argv[2], maxlen, atoi(argv[3])));
+  if ((dest = malloc(256 * sizeof(char*))) == NULL){
+    perror("Malloc");
+    return -1;
+  }
+  while (i < 256)
+    if ((dest[i++] = calloc(256, sizeof(char))) == NULL){
+      perror("Calloc");
+      return -1;
+    }
+  
+  if (s_split(dest, (const char*)argv[1], 256,
+	      strlen(argv[1]), 256, ':') == NULL){
+    perror("S_split");
+    return -1;
+  }
+  for (i = 0; dest[i][0] != '\0' && i < 256; i++)
+    printf("%s\n", dest[i]);
     
   
   return 0;
