@@ -14,7 +14,15 @@
 # include <ctype.h>
 # include <errno.h>
 
-# define LS_ICASE 1
+# define SPACE  ' '
+# define USCORE '_'
+
+/* s_strcmp flags. */
+enum ls_cmp_flags {
+  LS_ICASE  = 0x01,         /* Case insensitive comparaison. */
+  LS_USPACE = 0x02          /* Spaces and underscores are treated the same. */
+
+}; 
 
 /*** Code ***/
 
@@ -56,6 +64,7 @@ static inline char* s_strcpy(char *dest, char *src, size_t dest_s)
 static inline int s_strcmp(const char *s1, const char *s2, size_t num, int flags)
 {
   size_t len1 = 0, len2 = 0;
+
   errno = 0;
   if (!s1 || !s2 || num == 0) {
     errno = EINVAL;
@@ -66,30 +75,26 @@ static inline int s_strcmp(const char *s1, const char *s2, size_t num, int flags
    * If any strings are smaller than num, modify num localy so that it's 
    * equal to the lenght of the smaller string.
    */
-  if (num > (len1 = strlen(s1)) || num > (len2 = strlen(s2))){
+  len1 = strlen(s1);
+  len2 = strlen(s2);
+  if (num > len1 || num > len2){
     if (len1 < len2) num = len1;
     else num = len2;
   }
-  
-  if (flags & LS_ICASE){
-    while(num-- != 0 && tolower(*s1) == tolower(*s2)){
-      if (num == 0 || *s1 == '\0' || *s2 == '\0') break;
-      s1++;
-      s2++;
-    }
-    
-    return (tolower(*s1) - tolower(*s2));
-  }
-
-  /* Default, no flags. */
-  while (num-- != 0 && *s1 == *s2){
+  while (num-- != 0){
     if (num == 0 || *s1 == '\0' || *s2 == '\0') break;
-    s1++;
-    s2++;
+    if ((*s1 == *s2) 
+	|| ((flags & LS_USPACE) && ((*s1 == SPACE || *s1 == USCORE)
+				    && (*s2 == SPACE || *s2 == USCORE)))
+	|| ((flags & LS_ICASE) && (tolower(*s1) == tolower(*s2)))){
+      ++s1;
+      ++s2;
+    }
+    else break;
   }
+  if (flags & LS_ICASE) return (tolower(*s1) - tolower(*s2));
   return (*s1 - *s2);
-
-
+  
 } /* s_strcmp() */
 
 
@@ -199,5 +204,6 @@ static inline char* s_itoa(char *dest, int src, size_t dest_s)
 } /* s_itoa() */
 
 	       
-
+#undef SPACE
+#undef USCORE
 #endif /* LIB_SAFE_UTILS_HEADER_FILE */

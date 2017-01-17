@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 
   if (argc < 4) {
     fprintf(stderr, "%s [s1] [s2] [flags] compare string s1 against string s2 (maximum 256 bytes long per strings.)\n \
-flags can be 0 or LS_ICASE only.\n\n",
+flags can be 0, LS_ICASE or LS_USCORE.\n\n",
 	    argv[0]);
     return -1;
   }
