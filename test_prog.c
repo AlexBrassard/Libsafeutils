@@ -5,35 +5,23 @@
 
 int main(int argc, char **argv)
 {
-  char **dest = NULL;
-  int i = 0;
+  int ret = 0;
+  size_t len1 = 0, len2 = 0;
   
 
 
-  if (argc < 2){
-    fprintf(stderr, "%s [string]  -  Split a string into at most 255 words of at most 255 characters each, 1 per line.\n\n",
-	    argv[0]);
+  if (argc < 4) {
+    fprintf(stderr, "\n%s [s1] [s2] [flags]\n\nCompare s1 against s2, returning smaller than, equal to or bigger than 0\
+ if s1 is smaller than, equal to or bigger than s2\nflags are a bitwise OR of the following constant:\n\n\
+1: Case insensitive comparaison\n2: Spaces and underscores are treated to be the same character.\n\n", argv[0]);
     return -1;
   }
-
-  if ((dest = malloc(256 * sizeof(char*))) == NULL){
-    perror("Malloc");
-    return -1;
-  }
-  while (i < 256)
-    if ((dest[i++] = calloc(256, sizeof(char))) == NULL){
-      perror("Calloc");
-      return -1;
-    }
-  
-  if (s_split(dest, (const char*)argv[1], 256,
-	      strlen(argv[1]), 256, ':') == NULL){
-    perror("S_split");
-    return -1;
-  }
-  for (i = 0; dest[i][0] != '\0' && i < 256; i++)
-    printf("%s\n", dest[i]);
-    
+  len1 = strlen(argv[1]);
+  len2 = strlen(argv[2]);
+  ret = s_strcmp(argv[1], argv[2],
+		 strlen(argv[2]),
+		 atoi(argv[3]));
+  printf("Result: %d\n\n", ret);
   
   return 0;
 }

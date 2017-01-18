@@ -19,8 +19,9 @@
 
 /* s_strcmp flags. */
 enum ls_cmp_flags {
-  LS_ICASE  = 0x01,         /* Case insensitive comparaison. */
-  LS_USPACE = 0x02          /* Spaces and underscores are treated the same. */
+  LS_ICASE  = 0x01,          /* Case insensitive comparaison. */
+  LS_USPACE = 0x02,          /* Spaces and underscores are treated the same. */
+  LS_STRSTR = 0x04           /* s_strcmp behave more closely like the standard strstr(). */
 
 }; 
 
@@ -72,22 +73,25 @@ static inline int s_strcmp(const char *s1, const char *s2, size_t num, int flags
     return 0;
   }
   /* 
-   * Make sure both string lenghts are bigger than or equal to num.
+   * If the LS_STRSTR flag is on,
+   * make sure both string lenghts are bigger than or equal to num.
    * If any strings are smaller than num, modify num localy so that it's 
    * equal to the lenght of the smaller string.
    */
-  len1 = strlen(s1);
-  len2 = strlen(s2);
-  if (num > len1 || num > len2){
-    if (len1 < len2) num = len1;
-    else num = len2;
+  if (flags & LS_STRSTR){
+    len1 = strlen(s1);
+    len2 = strlen(s2);
+    if (num > len1 || num > len2){
+      if (len1 < len2) num = len1;
+      else num = len2;
+    }
   }
   while (num-- != 0){
     if (num == 0 || *s1 == '\0' || *s2 == '\0') break;
     if ((*s1 == *s2) 
+	|| ((flags & LS_ICASE) && (tolower(*s1) == tolower(*s2)))
 	|| ((flags & LS_USPACE) && ((*s1 == SPACE || *s1 == USCORE)
-				    && (*s2 == SPACE || *s2 == USCORE)))
-	|| ((flags & LS_ICASE) && (tolower(*s1) == tolower(*s2)))){
+				    && (*s2 == SPACE || *s2 == USCORE)))){
       ++s1;
       ++s2;
     }
