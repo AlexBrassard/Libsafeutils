@@ -6,8 +6,6 @@
 int main(int argc, char **argv)
 {
   int ret = 0;
-  size_t len1 = 0, len2 = 0;
-  
 
 
   if (argc < 4) {
@@ -16,10 +14,8 @@ int main(int argc, char **argv)
 1: Case insensitive comparaison\n2: Spaces and underscores are treated to be the same character.\n\n", argv[0]);
     return -1;
   }
-  len1 = strlen(argv[1]);
-  len2 = strlen(argv[2]);
   ret = s_strcmp(argv[1], argv[2],
-		 strlen(argv[2]),
+		 0,
 		 atoi(argv[3]));
   printf("Result: %d\n\n", ret);
   

@@ -56,35 +56,36 @@ static inline char* s_strcpy(char *dest, char *src, size_t dest_s)
  * Compares the first num bytes of s1 and s2 returning
  * an integer less than, equal to or bigger than 0 if 
  * s1 is found to be smaller than, equal to or bigger than s2.
+ *
  * Flags are optional parameters to pass to s_strcmp:
  * LS_ICASE  makes comparaisons case-insensitive;
  * LS_USPACE makes space character and underscore character effectively the same character;
  * (ex: "Ville Montreal" and "Ville_Montreal" would return 0, match).
+ * LS_STRSTR makes s_strcmp behave like the standard strstr(), other flags are still valid.
+ *
  * The only way to see if s_strcmp had an error is to verify errno 
  * after each calls.
+ *
+ * Passing a 0 argument to num isn't an error, but makes s_strcmp() behaves like 
+ * the standard strstr() so beware!
  */
-static inline int s_strcmp(const char *s1, const char *s2, size_t num, int flags)
+static inline int s_strcmp(const char *s1, const char *s2, size_t numof_bytes, int flags)
 {
-  size_t len1 = 0, len2 = 0;
+  size_t num = numof_bytes;
 
   errno = 0;
-  if (!s1 || !s2 || num == 0) {
+  if (!s1 || !s2) {
     errno = EINVAL;
     return 0;
   }
   /* 
-   * If the LS_STRSTR flag is on,
-   * make sure both string lenghts are bigger than or equal to num.
-   * If any strings are smaller than num, modify num localy so that it's 
-   * equal to the lenght of the smaller string.
+   * If the LS_STRSTR flag is on or num was set to 0, modify num localy so that it's 
+   * equal to the lenght of the smaller of both strings.
    */
-  if (flags & LS_STRSTR){
-    len1 = strlen(s1);
-    len2 = strlen(s2);
-    if (num > len1 || num > len2){
-      if (len1 < len2) num = len1;
-      else num = len2;
-    }
+  if (flags & LS_STRSTR || num == 0){
+    size_t len1 = strlen(s1);
+    size_t len2 = strlen(s2);
+    num = ((len1 < len2) ? len1 : len2);
   }
   while (num-- != 0){
     if (num == 0 || *s1 == '\0' || *s2 == '\0') break;
