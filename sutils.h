@@ -21,7 +21,6 @@
 enum ls_cmp_flags {
   LS_ICASE  = 0x01,          /* Case insensitive comparaison. */
   LS_USPACE = 0x02,          /* Spaces and underscores are treated the same. */
-  LS_STRSTR = 0x04           /* s_strcmp behave more closely like the standard strstr(). */
 
 }; 
 
@@ -61,7 +60,6 @@ static inline char* s_strcpy(char *dest, char *src, size_t dest_s)
  * LS_ICASE  makes comparaisons case-insensitive;
  * LS_USPACE makes space character and underscore character effectively the same character;
  * (ex: "Ville Montreal" and "Ville_Montreal" would return 0, match).
- * LS_STRSTR makes s_strcmp behave like the standard strstr(), other flags are still valid.
  *
  * The only way to see if s_strcmp had an error is to verify errno 
  * after each calls.
@@ -77,15 +75,6 @@ static inline int s_strcmp(const char *s1, const char *s2, size_t numof_bytes, i
   if (!s1 || !s2) {
     errno = EINVAL;
     return 0;
-  }
-  /* 
-   * If the LS_STRSTR flag is on or num was set to 0, modify num localy so that it's 
-   * equal to the lenght of the smaller of both strings.
-   */
-  if (flags & LS_STRSTR || num == 0){
-    size_t len1 = strlen(s1);
-    size_t len2 = strlen(s2);
-    num = ((len1 < len2) ? len1 : len2);
   }
   while (num-- != 0){
     if (num == 0 || *s1 == '\0' || *s2 == '\0') break;
