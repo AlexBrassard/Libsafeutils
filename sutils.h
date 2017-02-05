@@ -45,7 +45,7 @@ static inline char* s_strcpy(char *dest, char *src, size_t dest_s)
     return NULL;
   }
   memset(dest, '\0', dest_s);
-  memcpy(dest, src, src_s);
+  memmove(dest, src, src_s);
   return dest;
 
 } /* s_strcpy() */
