@@ -5,19 +5,33 @@
 
 int main(int argc, char **argv)
 {
-  int ret = 0;
+  int ret = 0, i = 0;
+  int delim = 0;
+  char **dest = NULL;
+  
 
-
-  if (argc < 4) {
-    fprintf(stderr, "\n%s [s1] [s2] [flags]\n\nCompare s1 against s2, returning smaller than, equal to or bigger than 0\
- if s1 is smaller than, equal to or bigger than s2\nflags are a bitwise OR of the following constant:\n\n\
-1: Case insensitive comparaison\n2: Spaces and underscores are treated to be the same character.\n\n", argv[0]);
+  if (argc < 3) {
+    fprintf(stderr, "s_split() : split the given string according to the given delimiter.\n\n");
     return -1;
   }
-  ret = s_strcmp(argv[1], argv[2],
-		 0,
-		 atoi(argv[3]));
-  printf("Result: %d\n\n", ret);
+
+  if ((dest = malloc(256 * sizeof(char*))) == NULL){
+    perror("Malloc");
+    return -1;
+  }
+  for (; i < 256; i++)
+    if ((dest[i] = calloc(256, sizeof(char))) == NULL){
+      perror("Calloc");
+      return -1;
+    }
+  delim = argv[2][0];
+  if (s_split(dest, argv[1], 256, strlen(argv[1])+1, 256, delim) == NULL){
+    perror("S_split");
+    return -1;
+  }
+  printf("Dest is:\n");
+  for (i = 0; i < 256 && dest[i][0] != '\0'; i++)
+    printf("[%d] - %s\n", i, dest[i]);
   
   return 0;
 }

@@ -97,9 +97,15 @@ static inline int s_strcmp(const char *s1, const char *s2, size_t numof_bytes, i
  * Split src into dest[words] of at most word_s-1 characters each,
  * words are all null terminated and
  * separated by the word_delim character casted to an integer (space by default).
- * Set word_delim to -1 for default.
+ * Set word_delim to -1 or LS_DEF_DELIMITER for default.
  * dest can hold at most dest_s-1 words.
+
+ An ode to shitty named variables:
+ * dest_s: number of elements in dest[][] + 1.
+ * src_s : src[] lenght in bytes + 1.
+ * word_s: dest[] lenght in bytes + 1.
  */
+#define LS_DEF_DELIMITER -1
 static inline char** s_split(char **dest, const char *src, size_t dest_s,
 			     size_t src_s, size_t word_s, int word_delim)
 {
@@ -113,7 +119,7 @@ static inline char** s_split(char **dest, const char *src, size_t dest_s,
   if (word_delim == -1) word_delim = SPACE;
 
   while(dest_s-- != 0){
-    if (src_s == 0 || dest_s == 0 || !dest[dest_ind]) break;
+    if (src_s == 0 || !dest[dest_ind]) break;
     memset(dest[dest_ind], '\0', word_s);
     for (word_ind = 0; word_ind < word_s-1; word_ind++, src++){
       if (*src == '\0' || src_s-- == 0) break;
@@ -123,7 +129,7 @@ static inline char** s_split(char **dest, const char *src, size_t dest_s,
       }
       dest[dest_ind][word_ind] = *src;
     }
-    dest[dest_ind++][word_ind] = '\0';
+    dest_ind++;
   }
   return dest;
 
