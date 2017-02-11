@@ -17,11 +17,11 @@
 # define SPACE  ' '
 # define USCORE '_'
 
-/* s_strcmp flags. */
-enum ls_cmp_flags {
+/* s_strcmp and s_strstr flags. */
+enum ls_str_flags {
   LS_ICASE  = 0x01,          /* Case insensitive comparaison. */
-  LS_USPACE = 0x02,          /* Spaces and underscores are treated the same. */
-
+  LS_USPACE = 0x02           /* Spaces and underscores are treated the same. */
+  
 }; 
 
 /*** Code ***/
@@ -92,6 +92,50 @@ static inline int s_strcmp(const char *s1, const char *s2, size_t numof_bytes, i
   
 } /* s_strcmp() */
 
+
+/*
+ * Search within haystack for needle but not any further than
+ * a terminating NULL byte or haystack_s bytes. 
+ * Flags is a bitwise combinations of any or none
+ * of the ls_str_flags (defined near top of file.)
+ * Returns -2, -1 or the index of needle[0] within haystack when
+ * there's no match, there's an error and there's a match respectively.
+ */
+int s_strstr(const char *haystack, const char *needle,
+	       size_t haystack_s, int flags)
+{
+  size_t n_ind = 0, h_ind = 0;
+  size_t begining = 0;
+  
+  if (!haystack || !needle || !haystack_s){
+    errno = EINVAL;
+    return -1;
+  }
+
+  while (--haystack_s != 0){
+    if (haystack_s == 0 || haystack[h_ind] == '\0') break;
+    /* Reaching the end of needle means all previous chars matched, return successfuly. */
+    if (needle[n_ind] == '\0') return begining;
+    if ((haystack[h_ind] == needle[n_ind])
+	|| ((flags & LS_ICASE) && (tolower(haystack[h_ind]) == tolower(needle[n_ind])))
+	|| ((flags & LS_USPACE) && ((haystack[h_ind] == SPACE && needle[n_ind] == USCORE)
+				    || (haystack[h_ind] == USCORE && needle[n_ind] == SPACE))))
+      ++n_ind;
+    else if (n_ind > 0){
+      haystack_s += (h_ind - begining);
+      h_ind = ++begining;
+      n_ind = 0;
+      continue;
+    }
+    else 
+      begining = h_ind+1;
+      
+    ++h_ind;
+  }
+  return -2;
+
+} /* s_strstr() */
+    
 
 /* 
  * Split src into dest[words] of at most word_s-1 characters each,
@@ -173,7 +217,7 @@ static inline char* s_itoa(char *dest, int src, size_t dest_s)
 
 } /* s_itoa() */
 
-	       
+
 #undef SPACE
 #undef USCORE
 #endif /* LIB_SAFE_UTILS_HEADER_FILE */
