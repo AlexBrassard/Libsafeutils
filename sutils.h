@@ -113,9 +113,9 @@ static inline int s_strstr(const char *haystack, const char *needle,
   }
 
   while (--haystack_s != 0){
-    if (haystack_s == 0 || haystack[h_ind] == '\0') break;
     /* Reaching the end of needle means all previous chars matched, return successfuly. */
     if (needle[n_ind] == '\0') return begining;
+    if (haystack_s == 0 || haystack[h_ind] == '\0') break;
     if ((haystack[h_ind] == needle[n_ind])
 	|| ((flags & LS_ICASE) && (tolower(haystack[h_ind]) == tolower(needle[n_ind])))
 	|| ((flags & LS_USPACE) && ((haystack[h_ind] == SPACE && needle[n_ind] == USCORE)
