@@ -101,8 +101,8 @@ static inline int s_strcmp(const char *s1, const char *s2, size_t numof_bytes, i
  * Returns -2, -1 or the index of needle[0] within haystack when
  * there's no match, there's an error and there's a match respectively.
  */
-int s_strstr(const char *haystack, const char *needle,
-	       size_t haystack_s, int flags)
+static inline int s_strstr(const char *haystack, const char *needle,
+			   size_t haystack_s, int flags)
 {
   size_t n_ind = 0, h_ind = 0;
   size_t begining = 0;
