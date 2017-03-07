@@ -5,12 +5,16 @@
 
 int main(int argc, char **argv)
 {
-  if (argc < 4) {
-    fprintf(stderr, "%s: [haystack] [needle] [flags]\n\n", argv[0]);
+  int year = 0;
+  if (argc < 2){
+    fprintf(stderr, "%s [year]\n\n", argv[0]);
     return -1;
   }
-  printf("Haystack: %s\nNeedle: %s\nMatch: %d\n\n",
-	 argv[1], argv[2], s_strstr(argv[1], argv[2], 256, atoi(argv[3])));
+  year = atoi(argv[1]);
+  if (s_isleap(year))
+    printf("%d is a leap year\n", year);
+  else
+    printf("%d is not a leap year\n", year);
 
   return 0;
 }
